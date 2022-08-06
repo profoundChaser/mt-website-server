@@ -3,10 +3,10 @@ const uploadToQINIU = require('../../utils/qiniu')
 const QINIU = require('../../config/qiniuConfig')
 module.exports = {
   //获取所有图片分类
-  getAllImages: async function () {
+  getAllImages: async function (params) {
     let res
-    const imgs = await ImageMap.getAllImages()
-    if (imgs.length) {
+    const imgs = await ImageMap.getAllImages(params)
+    if (imgs.imgsArr) {
       return (res = {
         status: 200,
         data: imgs,

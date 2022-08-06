@@ -5,7 +5,7 @@ const { createAvatar } = require('../../../utils/utils.js')
 const UserMap = {
   getAllUsers: async () => {
     return User.findAll({
-      attributes: ['id', 'name', 'sex', 'email','roleId'],
+      attributes: ['id', 'name', 'sex', 'email', 'roleId'],
       // order: [['createAt', 'DESC']],
     })
   },
@@ -13,31 +13,29 @@ const UserMap = {
     return User.findByPk(id)
   },
   getUserByName: async (name) => {
-    return User.findAll({
+    return User.findOne({
       where: {
-        name: {
-          [Op.like]: `${name}%`,
-        },
+        name: name,
       },
     })
   },
   getUserByEmail: async (email) => {
-    const user=await User.findOne({
+    const user = await User.findOne({
       where: {
         email: {
           [Op.like]: `${email}%`,
         },
       },
     })
-    const role=await user.getRole()
+    const role = await user.getRole()
     return {
-      id:user.id,
-      name:user.name,
-      sex:user.sex,
-      email:user.email,
-      password:user.password,
-      avatar:user.avatar,
-      role:role.roleName
+      id: user.id,
+      name: user.name,
+      sex: user.sex,
+      email: user.email,
+      password: user.password,
+      avatar: user.avatar,
+      role: role.roleName,
     }
   },
   updateUser: async (id, user, User) => {
@@ -49,7 +47,7 @@ const UserMap = {
     }
   },
   createUser: async (user) => {
-    return User.create({...user,avatar:createAvatar()})
+    return User.create({ ...user, avatar: createAvatar() })
   },
   deleteUser: async (id, User) => {
     const user = await User.getUserById(id)

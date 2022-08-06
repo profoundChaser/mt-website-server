@@ -1,9 +1,46 @@
 const Image = require('./index.js')
 const { Op } = require('sequelize')
-
+const UserMap = require('../User/mapper')
 const ImageMap = {
-  getAllImages: async () => {
-    const imageCountObj = await Image.findAndCountAll({
+  getAllImages: async (params) => {
+    let pageInfo = {}
+    let count = 0
+    let where = {}
+    //请求是否携带分页逻辑
+    if (params.pageSize) {
+      pageSize = params.pageSize
+      pageIndex = params.pageIndex
+      pageInfo = {
+        limit: +pageSize,
+        offset: (pageIndex - 1) * +pageSize,
+      }
+    }
+    //请求是否携带查询逻辑
+    if (params.searchContent) {
+      let user = null
+      const { imgName, name, categoryId } = JSON.parse(params.searchContent)
+      console.log(imgName, name, categoryId)
+      if (imgName) {
+        where.name = {
+          [Op.like]: `%${imgName}%`,
+        }
+      }
+      if (name) {
+        //获取用户对象
+        user = await UserMap.getUserByName(name)
+        where.uploaderId = user.id
+      }
+      if (categoryId) {
+        where.categoryId = categoryId
+      }
+      //按条件获取长度
+      const imageObj = await Image.findAndCountAll({
+        where
+      })
+      count = imageObj.count
+    }
+    //整合
+    const images = await Image.findAll({
       attributes: [
         'id',
         'name',
@@ -13,11 +50,13 @@ const ImageMap = {
         'downloads',
         'views',
       ],
+      ...pageInfo,
+      where: where,
     })
     let imgsArr = []
-
-    for (let i = 0; i < imageCountObj.rows.length; i++) {
-      const item = imageCountObj.rows[i]
+    //联表处理数据结果
+    for (let i = 0; i < images.length; i++) {
+      const item = images[i]
       const user = await item.getUser()
       const category = await item.getImgCategory()
       imgsArr.push({
@@ -32,7 +71,7 @@ const ImageMap = {
         category_nameInEn: category.nameInEn,
       })
     }
-    return imgsArr
+    return { imgsArr, count }
   },
   getImageById: async (id) => {
     return Image.findByPk(id)
