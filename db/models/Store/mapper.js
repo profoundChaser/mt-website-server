@@ -1,15 +1,20 @@
-const Role = require('./index.js')
+const Store = require('./index.js')
 const { Op } = require('sequelize')
 
-const RoleMap = {
-  getAllRoles: async (id) => {
-     return Role.findAll()
+const StoreMap = {
+  getAllStores: async (id) => {
+    return Store.findAll({
+      where: {
+        storeUserId:+id,
+      },
+      order:[['createdAt','DESC']]
+    })
   },
-  getRoleById: async (id) => {
-    return Role.findByPk(id)
+  getStoreById: async (id) => {
+    return Store.findByPk(id)
   },
-  getRoleByName: async (name) => {
-    return Role.findAll({
+  getStoreByName: async (name) => {
+    return Store.findAll({
       where: {
         name: {
           [Op.like]: `${name}%`,
@@ -17,23 +22,23 @@ const RoleMap = {
       },
     })
   },
-  updateRole: async (id, role, Role) => {
-    const item = await Role.getRoleById(id)
+  updateStore: async (id, store, Store) => {
+    const item = await Store.getStoreById(id)
     if (item) {
-      return item.update(role)
+      return item.update(store)
     } else {
       throw new Error(`the customer with id ${id} is not exist`)
     }
   },
-  createRole: async (role) => {
-    return Role.create(role)
+  createStore: async (store) => {
+    return Store.create(store)
   },
-  deleteRole: async (id, Role) => {
-    const role = await Role.getRoleById(id)
-    if (role) {
-      return role.destroy()
+  deleteStore: async (id, Store) => {
+    const store = await Store.getStoreById(id)
+    if (store) {
+      return store.destroy()
     }
   },
 }
 
-module.exports = RoleMap
+module.exports = StoreMap

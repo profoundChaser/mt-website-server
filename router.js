@@ -86,12 +86,24 @@ module.exports = (app) => {
     const res = await StoreController.deleteStore(ctx, next)
     ctx.body = res
   })
-
+  //================管理员模块====================================
   /* 
-    管理员用户模块
+    用户模块
   */
   router.get('/users', async (ctx, next) => {
     const res = await UserController.getAllUsers(ctx, next)
+    ctx.body = res
+  })
+  /* 
+    图片模块
+  */
+  router.put('/images/:id', async (ctx, next) => {
+    const res = await ImageController.updateImage(ctx, next)
+    ctx.body = res
+  })
+
+  router.post('/updateImage', async (ctx, next) => {
+    const res = await ImageController.deleteImage(ctx, next)
     ctx.body = res
   })
   /* 

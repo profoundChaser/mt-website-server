@@ -19,7 +19,6 @@ const ImageMap = {
     if (params.searchContent) {
       let user = null
       const { imgName, name, categoryId } = JSON.parse(params.searchContent)
-      console.log(imgName, name, categoryId)
       if (imgName) {
         where.name = {
           [Op.like]: `%${imgName}%`,
@@ -77,7 +76,7 @@ const ImageMap = {
     return Image.findByPk(id)
   },
   updateImage: async (id, image, Image) => {
-    const item = await Image.getUserById(id)
+    const item = await Image.getImageById(id)
     if (item) {
       return item.update(image)
     } else {

@@ -1,5 +1,5 @@
 const ImageMap = require('../../db/models/Image/mapper')
-const uploadToQINIU = require('../../utils/qiniu')
+const { uploadToQINIU, QINIUDeleteFile } = require('../../utils/qiniu')
 const QINIU = require('../../config/qiniuConfig')
 module.exports = {
   //获取所有图片分类
@@ -72,5 +72,37 @@ module.exports = {
       }
     }
     return res
+  },
+  updateImage: async function (id, image) {
+    let res
+    const updateRes = await ImageMap.updateImage(id, image, ImageMap)
+    if (updateRes) {
+      return (res = {
+        status: 200,
+        msg: '修改图片成功',
+      })
+    } else {
+      return (res = {
+        status: 400,
+        msg: '修改图片失败',
+      })
+    }
+  },
+  deleteImage: async function (id, url) {
+    const imgKey = url.split('com/')[1]
+    let res
+    const qiniuRes=await QINIUDeleteFile(QINIU.bucket, imgKey)
+    const deleteRes = await ImageMap.deleteImage(id, ImageMap)
+    if (deleteRes) {
+      return (res = {
+        status: 200,
+        msg: '删除图片成功',
+      })
+    } else {
+      return (res = {
+        status: 400,
+        msg: '删除图片失败',
+      })
+    }
   },
 }

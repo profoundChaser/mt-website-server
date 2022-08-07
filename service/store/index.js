@@ -4,9 +4,19 @@ module.exports = {
   getAllStores: async function (id) {
     let res
     const stores = await StoreMap.getAllStores(id)
+    const imgArr = []
+    for (let i = 0; i < stores.length; i++) {
+      const item = stores[i]
+      const image =await item.getImage()
+      console.log(image)
+      imgArr.push({
+        id: item.id,
+        imgUrl: image.imgUrl,
+      })
+    }
     return (res = {
       status: 200,
-      data: stores,
+      data: imgArr,
       mag: '获取收藏图片成功',
     })
   },
