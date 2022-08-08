@@ -1,6 +1,10 @@
 const ImageMap = require('../../db/models/Image/mapper')
 const { uploadToQINIU, QINIUDeleteFile } = require('../../utils/qiniu')
 const QINIU = require('../../config/qiniuConfig')
+const {
+  createRandomNumWidthScope,
+  objectISEmpty,
+} = require('../../utils/utils')
 module.exports = {
   //获取所有图片分类
   getAllImages: async function (params) {
@@ -91,7 +95,7 @@ module.exports = {
   deleteImage: async function (id, url) {
     const imgKey = url.split('com/')[1]
     let res
-    const qiniuRes=await QINIUDeleteFile(QINIU.bucket, imgKey)
+    const qiniuRes = await QINIUDeleteFile(QINIU.bucket, imgKey)
     const deleteRes = await ImageMap.deleteImage(id, ImageMap)
     if (deleteRes) {
       return (res = {
@@ -104,5 +108,37 @@ module.exports = {
         msg: '删除图片失败',
       })
     }
+  },
+  createRandomImage: async function () {
+    let res
+    const imgs = await ImageMap.getAllImages()
+    const i = createRandomNumWidthScope(0, imgs.imgsArr.length)
+    if (objectISEmpty(imgs)) {
+      return (res = {
+        msg: '随机图片生成成功',
+        data: {
+          img: imgs.imgsArr[i],
+          count: imgs.imgsArr.length,
+        },
+        status: 200,
+      })
+    } else {
+      return (res = {
+        status: 400,
+        msg: '获取图片失败',
+      })
+    }
+  },
+  //预览图片 浏览图片+1
+  previewImageIncrement: async function (id) {
+    let res
+    const img = await ImageMap.getImageById(id)
+    let views = img.views
+    views++
+    await ImageMap.updateImage(id, { views }, ImageMap)
+    return (res = {
+      status: 200,
+      msg: '添加次数成功',
+    })
   },
 }

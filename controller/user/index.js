@@ -45,7 +45,18 @@ module.exports = {
     return res
   },
   getAllUsers: async function (ctx, next) {
-    let res = await UserService.getAllUsers()
+    const params = JSON.parse(JSON.stringify(ctx.query))
+    let res = await UserService.getAllUsers(params)
+    return res
+  },
+  deleteUser: async function (ctx, next) {
+    let { id } = ctx.request.body
+    let res = await UserService.deleteUser(id)
+    return res
+  },
+  deleteUsers: async function (ctx, next) {
+    let { idList } = ctx.request.body
+    let res = await UserService.deleteUsers(idList)
     return res
   },
 }

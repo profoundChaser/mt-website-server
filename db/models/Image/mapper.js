@@ -1,43 +1,51 @@
 const Image = require('./index.js')
 const { Op } = require('sequelize')
 const UserMap = require('../User/mapper')
+const { objectISEmpty } = require('../../../utils/utils.js')
 const ImageMap = {
   getAllImages: async (params) => {
     let pageInfo = {}
     let count = 0
     let where = {}
-    //请求是否携带分页逻辑
-    if (params.pageSize) {
-      pageSize = params.pageSize
-      pageIndex = params.pageIndex
-      pageInfo = {
-        limit: +pageSize,
-        offset: (pageIndex - 1) * +pageSize,
-      }
-    }
-    //请求是否携带查询逻辑
-    if (params.searchContent) {
-      let user = null
-      const { imgName, name, categoryId } = JSON.parse(params.searchContent)
-      if (imgName) {
-        where.name = {
-          [Op.like]: `%${imgName}%`,
+    if (params) {
+      //请求是否携带分页逻辑
+      if (params.pageSize) {
+        pageSize = params.pageSize
+        pageIndex = params.pageIndex
+        pageInfo = {
+          limit: +pageSize,
+          offset: (pageIndex - 1) * +pageSize,
         }
       }
-      if (name) {
-        //获取用户对象
-        user = await UserMap.getUserByName(name)
-        where.uploaderId = user.id
+      //请求是否携带查询逻辑
+      if (params.searchContent) {
+        let user = null
+        const { imgName, name, categoryId } = JSON.parse(params.searchContent)
+        console.log(imgName, name, categoryId)
+        if (imgName) {
+          where.name = {
+            [Op.like]: `%${imgName}%`,
+          }
+        }
+        if (name) {
+          //获取用户对象
+          user = await UserMap.getUserByName(name)
+          if(user){
+            where.uploaderId = user.id
+          }else{
+          }
+        }
+        if (categoryId) {
+          where.categoryId = categoryId
+        }
+        //按条件获取长度
+        const imageObj = await Image.findAndCountAll({
+          where,
+        })
+        count = imageObj.count
       }
-      if (categoryId) {
-        where.categoryId = categoryId
-      }
-      //按条件获取长度
-      const imageObj = await Image.findAndCountAll({
-        where
-      })
-      count = imageObj.count
     }
+
     //整合
     const images = await Image.findAll({
       attributes: [

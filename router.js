@@ -3,10 +3,12 @@ const QINIU = require('./config/qiniuConfig.js')
 const qiniu = require('qiniu')
 
 //控制层api
-const UserController = require('./controller/user/index.js')
-const CategoryController = require('./controller/category/index.js')
-const ImageController = require('./controller/image/index.js')
+const UserController = require('./controller/user')
+const CategoryController = require('./controller/category')
+const ImageController = require('./controller/image')
 const StoreController = require('./controller/store')
+const RoleController = require('./controller/role')
+const User = require('./db/models/User/index.js')
 
 module.exports = (app) => {
   /* 
@@ -69,6 +71,15 @@ module.exports = (app) => {
     ctx.body = res
   })
 
+  router.get('/randomImage', async (ctx, next) => {
+    const res = await ImageController.createRandomImage(ctx, next)
+    ctx.body = res
+  })
+  
+  router.post('/previewAdd', async (ctx, next) => {
+    const res = await ImageController.previewImageIncrement(ctx, next)
+    ctx.body = res
+  })
   /* 
   收藏模块
   */
@@ -94,6 +105,16 @@ module.exports = (app) => {
     const res = await UserController.getAllUsers(ctx, next)
     ctx.body = res
   })
+
+  router.post('/deleteUser', async (ctx, next) => {
+    const res = await UserController.deleteUser(ctx, next)
+    ctx.body = res
+  })
+
+  router.post('/deleteUsers', async (ctx, next) => {
+    const res = await UserController.deleteUsers(ctx, next)
+    ctx.body = res
+  })
   /* 
     图片模块
   */
@@ -104,6 +125,13 @@ module.exports = (app) => {
 
   router.post('/updateImage', async (ctx, next) => {
     const res = await ImageController.deleteImage(ctx, next)
+    ctx.body = res
+  })
+  /* 
+  角色模块
+  */
+  router.get('/roles', async (ctx, next) => {
+    const res = await RoleController.getAllRoles(ctx, next)
     ctx.body = res
   })
   /* 

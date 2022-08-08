@@ -1,7 +1,7 @@
 const UserMap = require('../../db/models/User/mapper')
 const { encrypt, decrypt, key, iv } = require('../../utils/crypto')
 const jwt = require('jsonwebtoken')
-const { ArrayISEmpty } = require('../../utils/utils')
+const { ArrayISEmpty, objectISEmpty } = require('../../utils/utils')
 const config = require('../../config/config')
 const sendEmailToGetCode = require('../../utils/sendEmail')
 const uploadToQINIU = require('../../utils/qiniu')
@@ -28,7 +28,7 @@ module.exports = {
         id,
       }
       //解密
-      // password = decrypt(key, iv, password)
+      password = decrypt(key, iv, password)
       if (password === pwd) {
         const Token = jwt.sign(payload, SECRET_KEY, { expiresIn: '1day' })
         return (res = {
@@ -50,16 +50,33 @@ module.exports = {
     let res
     let { name, email, password, sex } = params
     sex = sex === '0' ? '男' : '女'
-    // password = encrypt(key, iv, password)
+    password = encrypt(key, iv, password)
     const userInfo = await UserMap.getUserByName(name)
-    if (!ArrayISEmpty(userInfo)) {
-      return (res = {
-        status: 400,
-        data: {},
-        msg: '此名称也被注册了！！！',
-      })
+    const users = await UserMap.getAllUsers()
+    for (let i = 0; i < users.length; i++) {
+      if (users[i].email === email) {
+        return (res = {
+          status: 400,
+          msg: '该邮箱已经存在，请更换',
+        })
+      }
+    }
+    if (userInfo) {
+      if (!ArrayISEmpty(userInfo)) {
+        return (res = {
+          status: 400,
+          data: {},
+          msg: '此名称也被注册了！！！',
+        })
+      }
     } else {
-      const user = await UserMap.createUser({ email, name, password, sex })
+      let userOptions
+      if (params.roleId) {
+        userOptions = { email, name, password, sex, roleId: params.roleId }
+      } else {
+        userOptions = { email, name, password, sex, roleId: 1 }
+      }
+      const user = await UserMap.createUser(userOptions)
       if (user) {
         return (res = {
           status: 200,
@@ -83,17 +100,18 @@ module.exports = {
   },
   updateUserInfo: async function (params) {
     let res
-    const { id, info } = params
-    info.sex = info.sex === '0' ? '男' : '女'
-    const user = await UserMap.updateUser(id, info, UserMap)
+    const { id, user } = params
+    user.sex = user.sex === '0' ? '男' : '女'
+    const userRes = await UserMap.updateUser(id, user, UserMap)
     return (res = {
       status: 200,
       data: {
-        name: user.name,
-        id: user.id,
-        email: user.email,
-        sex: user.sex,
-        avatar: user.avatar,
+        name: userRes.name,
+        id: userRes.id,
+        email: userRes.email,
+        sex: userRes.sex,
+        avatar: userRes.avatar,
+        roleId: userRes.roleId,
       },
       msg: '修改用户成功',
     })
@@ -159,13 +177,13 @@ module.exports = {
       })
     }
   },
-  getAllUsers: async function () {
+  getAllUsers: async function (params) {
     let res
-    const users = await UserMap.getAllUsers()
-    if (users.length) {
+    const result = await UserMap.getAllUsers(params)
+    if (objectISEmpty(result)) {
       return (res = {
         status: 200,
-        data: users,
+        data: result,
         msg: '获取用户列表成功',
       })
     } else {
@@ -173,6 +191,26 @@ module.exports = {
         status: 400,
         msg: '获取用户列表失败',
       })
+    }
+  },
+  deleteUser: async function (id) {
+    let res
+    const user = await UserMap.deleteUser(id, UserMap)
+    return (res = {
+      msg: '删除成功',
+      status: 200,
+    })
+  },
+  deleteUsers: async function (idList) {
+    let res
+    for (let i = 0; i < idList.length; i++) {
+      const user = await UserMap.deleteUser(idList[i], UserMap)
+      if (i === idList.length - 1) {
+        return (res = {
+          msg: '删除成功',
+          status: 200,
+        })
+      }
     }
   },
 }

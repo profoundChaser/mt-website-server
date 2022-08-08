@@ -3,7 +3,7 @@ const { Op } = require('sequelize')
 
 const RoleMap = {
   getAllRoles: async () => {
-    const res = await Role.findAndCountAll({})
+    const res = await Role.findAndCountAll()
     return res
   },
   getRoleById: async (id) => {

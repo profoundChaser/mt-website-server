@@ -19,4 +19,10 @@ module.exports = {
   time13TransferTime10(time) {
     return Math.round(time / 1000)
   },
+  createRandomNumWidthScope(min, max) {
+    return ~~(Math.random() * (max - min) + min)
+  },
+  objectISEmpty(obj) {
+    return Object.keys(obj).length > 0
+  },
 }

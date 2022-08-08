@@ -25,8 +25,16 @@ module.exports = {
   },
   deleteImage: async function (ctx, next) {
     const { id, url } = ctx.request.body
-    console.log(id, url)
-    let res = await ImageService.deleteImage(id,url)
+    let res = await ImageService.deleteImage(id, url)
+    return res
+  },
+  createRandomImage: async function (ctx, next) {
+    let res = await ImageService.createRandomImage()
+    return res
+  },
+  previewImageIncrement: async function (ctx, next) {
+    const { id } = ctx.request.body
+    let res = await ImageService.previewImageIncrement(+id)
     return res
   },
 }

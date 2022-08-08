@@ -1,13 +1,54 @@
 const User = require('./index.js')
 const { Op } = require('sequelize')
-const { createAvatar } = require('../../../utils/utils.js')
+const { createAvatar, objectISEmpty } = require('../../../utils/utils.js')
 
 const UserMap = {
-  getAllUsers: async () => {
-    return User.findAll({
+  getAllUsers: async (params) => {
+    let pageInfo = {}
+    let count = 0
+    let where = {}
+    console.log(params)
+    if (params) {
+      //请求是否携带分页逻辑
+      if (params.pageSize) {
+        pageSize = params.pageSize
+        pageIndex = params.pageIndex
+        pageInfo = {
+          limit: +pageSize,
+          offset: (pageIndex - 1) * +pageSize,
+        }
+      }
+      //请求是否携带查询逻辑
+      if (params.searchContent) {
+        console.log(params.searchContent)
+        let { name, sex, roleId } = JSON.parse(params.searchContent)
+        if (name) {
+          where.name = {
+            [Op.like]: `%${name}%`,
+          }
+        }
+        if (sex || sex === 0) {
+          //获取用户对象
+          sex = sex === 0 ? '男' : '女'
+          console.log(sex)
+          where.sex = sex
+        }
+        if (roleId) {
+          where.roleId = roleId
+        }
+        //按条件获取长度
+        const userObj = await User.findAndCountAll({
+          where,
+        })
+        count = userObj.count
+      }
+    }
+    const users = await User.findAll({
       attributes: ['id', 'name', 'sex', 'email', 'roleId'],
-      // order: [['createAt', 'DESC']],
+      ...pageInfo,
+      where,
     })
+    return { users, count }
   },
   getUserById: async (id) => {
     return User.findByPk(id)
