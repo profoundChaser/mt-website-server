@@ -2,8 +2,25 @@ const Category = require('./index.js')
 const { Op } = require('sequelize')
 
 const CategoryMap = {
-  getAllCategories: async () => {
-    return Category.findAndCountAll()
+  getAllCategories: async (params) => {
+    let pageInfo = {}
+    if (params) {
+      //请求是否携带分页逻辑
+      if (params.pageSize) {
+        pageSize = params.pageSize
+        pageIndex = params.pageIndex
+        pageInfo = {
+          limit: +pageSize,
+          offset: (pageIndex - 1) * +pageSize,
+        }
+      }
+    }
+    const categoryObj = await Category.findAndCountAll({})
+
+    const categories = await Category.findAll({
+      ...pageInfo,
+    })
+    return { categories, count: categoryObj.count }
   },
   getCategoryById: async (id) => {
     return Category.findByPk(id)

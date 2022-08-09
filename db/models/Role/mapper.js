@@ -15,10 +15,11 @@ const RoleMap = {
         }
       }
     }
-    const res = await Role.findAndCountAll({
-      ...pageInfo
+    const roleObj = await Role.findAndCountAll()
+    const res = await Role.findAll({
+      ...pageInfo,
     })
-    return res
+    return { roles: res, count: roleObj.count }
   },
   getRoleById: async (id) => {
     return Role.findByPk(id)
