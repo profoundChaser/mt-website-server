@@ -141,4 +141,42 @@ module.exports = {
       msg: '添加次数成功',
     })
   },
+  downloadsIncrement: async function (id) {
+    let res
+    const img = await ImageMap.getImageById(id)
+    let downloads = img.downloads
+    downloads++
+    await ImageMap.updateImage(id, { downloads }, ImageMap)
+    return (res = {
+      status: 200,
+      msg: '添加次数成功',
+    })
+  },
+  //计算各类图片的下载量和浏览量
+  countForDownloadsAndViews: async function () {
+    const imgs = await ImageMap.getAllImages()
+    console.log(imgs.imgsArr[0])
+    const countInfo = {}
+    countInfo.downloadsTotal = 0
+    countInfo.viewsTotal = 0
+    imgs.imgsArr.forEach((item) => {
+      countInfo.downloadsTotal += item.downloads
+      countInfo.viewsTotal += item.views
+      if (!countInfo[item.category_name]) {
+        countInfo[item.category_name] = {
+          downloads: item.downloads,
+          views: item.views,
+        }
+      } else {
+        countInfo[item.category_name].downloads += item.downloads
+        countInfo[item.category_name].views += item.views
+      }
+    })
+    console.log(countInfo)
+    return (res = {
+      msg: '随机图片生成成功',
+      data: countInfo,
+      status: 200,
+    })
+  },
 }

@@ -80,6 +80,11 @@ module.exports = (app) => {
     const res = await ImageController.previewImageIncrement(ctx, next)
     ctx.body = res
   })
+  router.post('/downloadsAdd', async (ctx, next) => {
+    const res = await ImageController.downloadsIncrement(ctx, next)
+    ctx.body = res
+  })
+  
   /* 
   收藏模块
   */
@@ -125,6 +130,11 @@ module.exports = (app) => {
 
   router.post('/updateImage', async (ctx, next) => {
     const res = await ImageController.deleteImage(ctx, next)
+    ctx.body = res
+  })
+
+  router.get('/countInfo', async (ctx, next) => {
+    const res = await ImageController.countForDownloadsAndViews(ctx, next)
     ctx.body = res
   })
   /* 

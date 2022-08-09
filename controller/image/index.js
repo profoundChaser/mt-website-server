@@ -37,4 +37,13 @@ module.exports = {
     let res = await ImageService.previewImageIncrement(+id)
     return res
   },
+  downloadsIncrement:async function(ctx,next){
+    const { id } = ctx.request.body
+    let res = await ImageService.downloadsIncrement(+id)
+    return res
+  },
+  countForDownloadsAndViews: async function (ctx, next) {
+    let res = await ImageService.countForDownloadsAndViews()
+    return res
+  },
 }
