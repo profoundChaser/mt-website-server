@@ -7,7 +7,6 @@ const UserMap = {
     let pageInfo = {}
     let count = 0
     let where = {}
-    console.log(params)
     if (params) {
       //请求是否携带分页逻辑
       if (params.pageSize) {

@@ -75,7 +75,7 @@ module.exports = (app) => {
     const res = await ImageController.createRandomImage(ctx, next)
     ctx.body = res
   })
-  
+
   router.post('/previewAdd', async (ctx, next) => {
     const res = await ImageController.previewImageIncrement(ctx, next)
     ctx.body = res
@@ -132,6 +132,42 @@ module.exports = (app) => {
   */
   router.get('/roles', async (ctx, next) => {
     const res = await RoleController.getAllRoles(ctx, next)
+    ctx.body = res
+  })
+  router.post('/addRole', async (ctx, next) => {
+    const res = await RoleController.addRole(ctx, next)
+    ctx.body = res
+  })
+  router.post('/updateRole', async (ctx, next) => {
+    const res = await RoleController.updateRole(ctx, next)
+    ctx.body = res
+  })
+  router.post('/deleteRole', async (ctx, next) => {
+    const res = await RoleController.deleteRole(ctx, next)
+    ctx.body = res
+  })
+  router.post('/deleteRoles', async (ctx, next) => {
+    const res = await RoleController.deleteRoles(ctx, next)
+    ctx.body = res
+  })
+
+  /* 
+  图片分类模块
+  */
+  router.post('/addCategory', async (ctx, next) => {
+    const res = await CategoryController.addCategory(ctx, next)
+    ctx.body = res
+  })
+  router.post('/updateCategory', async (ctx, next) => {
+    const res = await CategoryController.updateCategory(ctx, next)
+    ctx.body = res
+  })
+  router.post('/deleteCategory', async (ctx, next) => {
+    const res = await CategoryController.deleteCategory(ctx, next)
+    ctx.body = res
+  })
+  router.post('/deleteCategories', async (ctx, next) => {
+    const res = await CategoryController.deleteCategories(ctx, next)
     ctx.body = res
   })
   /* 

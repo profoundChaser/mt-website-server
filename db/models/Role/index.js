@@ -9,9 +9,12 @@ const Role = sequelize.define('role', {
     unique:true,
     defaultValue:'user'
   },
+  roleDescribe:{
+    type:Sequelize.STRING,
+  },
 },{ timestamps: false })
 
-// Role.sync({force:true}).then(() => {
+// Role.sync({alter:true}).then(() => {
 //   return Role.create(
 //     {
 //         roleName:'user'
