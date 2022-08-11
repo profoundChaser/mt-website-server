@@ -37,13 +37,18 @@ module.exports = {
     let res = await ImageService.previewImageIncrement(+id)
     return res
   },
-  downloadsIncrement:async function(ctx,next){
+  downloadsIncrement: async function (ctx, next) {
     const { id } = ctx.request.body
     let res = await ImageService.downloadsIncrement(+id)
     return res
   },
   countForDownloadsAndViews: async function (ctx, next) {
     let res = await ImageService.countForDownloadsAndViews()
+    return res
+  },
+  getImagesByTime: async function (ctx, next) {
+    const { endDate, startDate } = ctx.request.body
+    let res = await ImageService.getImagesByTime(endDate, startDate)
     return res
   },
 }

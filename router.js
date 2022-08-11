@@ -85,6 +85,10 @@ module.exports = (app) => {
     ctx.body = res
   })
   
+  router.post('/getImageByTime', async (ctx, next) => {
+    const res = await ImageController.getImagesByTime(ctx, next)
+    ctx.body = res
+  })
   /* 
   收藏模块
   */

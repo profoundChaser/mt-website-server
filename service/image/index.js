@@ -1,6 +1,8 @@
 const ImageMap = require('../../db/models/Image/mapper')
 const { uploadToQINIU, QINIUDeleteFile } = require('../../utils/qiniu')
 const QINIU = require('../../config/qiniuConfig')
+const { Op } = require('sequelize')
+const UserMap = require('../../db/models/User/mapper')
 const {
   createRandomNumWidthScope,
   objectISEmpty,
@@ -8,12 +10,69 @@ const {
 module.exports = {
   //获取所有图片分类
   getAllImages: async function (params) {
-    let res
-    const imgs = await ImageMap.getAllImages(params)
-    if (imgs.imgsArr) {
+    let res = null
+    let pageInfo = {}
+    let count = 0
+    let where = {}
+    if (params) {
+      //请求是否携带分页逻辑
+      if (params.pageSize) {
+        pageSize = params.pageSize
+        pageIndex = params.pageIndex
+        pageInfo = {
+          limit: +pageSize,
+          offset: (pageIndex - 1) * +pageSize,
+        }
+      }
+      //请求是否携带查询逻辑
+      if (params.searchContent) {
+        let user = null
+        const { imgName, name, categoryId } = JSON.parse(params.searchContent)
+        if (imgName) {
+          where.name = {
+            [Op.like]: `%${imgName}%`,
+          }
+        }
+        if (name) {
+          //获取用户对象
+          user = await UserMap.getUserByName(name)
+          if (user) {
+            where.uploaderId = user.id
+          }
+        }
+        if (categoryId) {
+          where.categoryId = categoryId
+        }
+        //按条件获取长度
+        const imageObj = await ImageMap.getImageAndCountAll(where)
+        count = imageObj.count
+      }
+    }
+    const images = await ImageMap.getAllImages(pageInfo, where)
+    let imgsArr = []
+    //联表处理数据结果
+    for (let i = 0; i < images.length; i++) {
+      const item = images[i]
+      const user = await item.getUser()
+      const category = await item.getImgCategory()
+
+      imgsArr.push({
+        id: item.id,
+        imgName: item.name,
+        imgUrl: item.imgUrl,
+        uploader: user.name,
+        downloads: item.downloads,
+        views: item.views,
+        avatar: user.avatar,
+        category_name: category.name,
+        category_nameInEn: category.nameInEn,
+      })
+    }
+
+    if (images) {
       return (res = {
         status: 200,
-        data: imgs,
+        data: { imgsArr, count },
         msg: '获取图片成功',
       })
     } else {
@@ -154,14 +213,33 @@ module.exports = {
   },
   //计算各类图片的下载量和浏览量
   countForDownloadsAndViews: async function () {
-    const imgs = await ImageMap.getAllImages()
-    console.log(imgs.imgsArr[0])
+    const images = await ImageMap.getAllImages()
     const countInfo = {}
-    countInfo.downloadsTotal = 0
-    countInfo.viewsTotal = 0
-    imgs.imgsArr.forEach((item) => {
-      countInfo.downloadsTotal += item.downloads
-      countInfo.viewsTotal += item.views
+    let downloadsTotal = 0
+    let viewsTotal = 0
+
+    let imgsArr = []
+    //联表处理数据结果
+    for (let i = 0; i < images.length; i++) {
+      const item = images[i]
+      const user = await item.getUser()
+      const category = await item.getImgCategory()
+
+      imgsArr.push({
+        id: item.id,
+        imgName: item.name,
+        imgUrl: item.imgUrl,
+        uploader: user.name,
+        downloads: item.downloads,
+        views: item.views,
+        avatar: user.avatar,
+        category_name: category.name,
+        category_nameInEn: category.nameInEn,
+      })
+    }
+    imgsArr.forEach((item) => {
+      downloadsTotal += item.downloads
+      viewsTotal += item.views
       if (!countInfo[item.category_name]) {
         countInfo[item.category_name] = {
           downloads: item.downloads,
@@ -172,11 +250,52 @@ module.exports = {
         countInfo[item.category_name].views += item.views
       }
     })
-    console.log(countInfo)
     return (res = {
-      msg: '随机图片生成成功',
-      data: countInfo,
+      msg: '统计成功',
+      data: {
+        countInfo,
+        viewsTotal,
+        downloadsTotal,
+      },
       status: 200,
     })
+  },
+  //计算上传图片按时间赛选
+  getImagesByTime: async function (endDate, startDate) {
+    let where = {
+      createdAt: {
+        [Op.lte]: endDate,
+        [Op.gte]: startDate,
+      },
+    }
+    const images = await ImageMap.getAllImages({}, where)
+    if (!images.length) {
+      return (res = {
+        msg: '获取失败',
+        status: 400,
+      })
+    }
+    let imgsArr = []
+    //联表处理数据结果
+    for (let i = 0; i < images.length; i++) {
+      const item = images[i]
+      const user = await item.getUser()
+      const category = await item.getImgCategory()
+
+      imgsArr.push({
+        id: item.id,
+        uploader: user.name,
+        category_name: category.name,
+        createdAt: item.createdAt,
+      })
+    }
+
+    if (imgsArr.length) {
+      return (res = {
+        msg: '获取成功',
+        data: imgsArr,
+        status: 200,
+      })
+    }
   },
 }
