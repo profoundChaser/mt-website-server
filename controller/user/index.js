@@ -5,7 +5,7 @@ module.exports = {
     let params = ctx.request.body
     let email = params.email
     let password = params.password
-    let res = await UserService.login(email, password)
+    let res = await UserService.login(email, password, ctx)
     return res
   },
   register: async function (ctx, next) {

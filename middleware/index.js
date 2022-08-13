@@ -4,7 +4,8 @@ const bodyParser = require('koa-body')
 const staticFiles = require('koa-static')
 const minSend = require('./mi-send')
 const cors = require('koa2-cors')
-const checkToken=require('./mi-token')
+const checkToken = require('./mi-token')
+const { accessLogger, systemLogger } = require('../log4')
 module.exports = (app) => {
   app.use(
     staticFiles(path.resolve(__dirname, '../public'), {
@@ -25,5 +26,6 @@ module.exports = (app) => {
     })
   )
   app.use(minSend())
-  // app.use(checkToken)
+  app.use(checkToken)
+  app.use(accessLogger())
 }

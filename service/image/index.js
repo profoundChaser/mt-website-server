@@ -202,13 +202,14 @@ module.exports = {
   createRandomImage: async function () {
     let res
     const imgs = await ImageMap.getAllImages()
-    const i = createRandomNumWidthScope(0, imgs.imgsArr.length)
+    console.log(imgs)
+    const i = createRandomNumWidthScope(0, imgs.length)
     if (objectISEmpty(imgs)) {
       return (res = {
         msg: '随机图片生成成功',
         data: {
-          img: imgs.imgsArr[i],
-          count: imgs.imgsArr.length,
+          img: imgs[i],
+          count: imgs.length,
         },
         status: 200,
       })

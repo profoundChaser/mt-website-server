@@ -6,12 +6,14 @@ const config = require('../../config/config')
 const sendEmailToGetCode = require('../../utils/sendEmail')
 const uploadToQINIU = require('../../utils/qiniu')
 const QINIU = require('../../config/qiniuConfig')
-
+//引入日志模块
+const LogMap = require('../../db/models/Log/mapper')
 module.exports = {
-  login: async function (reqEmail, pwd) {
-    let res
+  login: async function (reqEmail, pwd, ctx) {
+    let res = null
+    let log = null
     const user = await UserMap.getUserByEmail(reqEmail)
-    console.log(user)
+
     if (ArrayISEmpty(user)) {
       return (res = {
         status: 400,
@@ -31,6 +33,18 @@ module.exports = {
       password = decrypt(key, iv, password)
       if (password === pwd) {
         const Token = jwt.sign(payload, SECRET_KEY, { expiresIn: '1h' })
+        ctx.status = 200
+        log = {
+          username: name,
+          url: ctx.url,
+          host: ctx.host,
+          method: ctx.method,
+          status: ctx.status,
+          agent: ctx.header['user-agent'],
+        }
+
+        //增加登录日志
+        LogMap.createLog(log)
         return (res = {
           status: 200,
           data: user,

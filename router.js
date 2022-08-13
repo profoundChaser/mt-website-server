@@ -8,6 +8,7 @@ const CategoryController = require('./controller/category')
 const ImageController = require('./controller/image')
 const StoreController = require('./controller/store')
 const RoleController = require('./controller/role')
+const LogController = require('./controller/log')
 const User = require('./db/models/User/index.js')
 const checkToken = require('./middleware/mi-token')
 
@@ -192,6 +193,21 @@ module.exports = (app) => {
   })
   router.post('/deleteCategories', async (ctx, next) => {
     const res = await CategoryController.deleteCategories(ctx, next)
+    ctx.body = res
+  })
+  /* 
+  日志模块
+  */
+  router.get('/logs', async (ctx, next) => {
+    const res = await LogController.getAllLogs(ctx, next)
+    ctx.body = res
+  })
+  router.post('/deleteLog', async (ctx, next) => {
+    const res = await LogController.deleteLogs(ctx, next)
+    ctx.body = res
+  })
+  router.post('/deleteLogs', async (ctx, next) => {
+    const res = await LogController.deleteLogs(ctx, next)
     ctx.body = res
   })
   /* 
