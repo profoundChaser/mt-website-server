@@ -30,7 +30,7 @@ module.exports = {
       //解密
       password = decrypt(key, iv, password)
       if (password === pwd) {
-        const Token = jwt.sign(payload, SECRET_KEY, { expiresIn: '1day' })
+        const Token = jwt.sign(payload, SECRET_KEY, { expiresIn: '1h' })
         return (res = {
           status: 200,
           data: user,

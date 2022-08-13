@@ -11,6 +11,10 @@ const sequelize = new Sequelize("mtdb", "root", "123456", {
   },
 });
 
+sequelize.groupByTime = function (attr) {
+  return attr.split(' ')[0]
+}
+
 sequelize
   .authenticate()
   .then(() => {

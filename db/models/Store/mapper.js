@@ -1,13 +1,13 @@
 const Store = require('./index.js')
 const { Op } = require('sequelize')
-
+const sequelize = require('sequelize')
 const StoreMap = {
   getAllStores: async (id) => {
     return Store.findAll({
       where: {
-        storeUserId:+id,
+        storeUserId: +id,
       },
-      order:[['createdAt','DESC']]
+      order: [['createdAt', 'DESC']],
     })
   },
   getStoreById: async (id) => {

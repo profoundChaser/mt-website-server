@@ -28,6 +28,11 @@ module.exports = {
     let res = await ImageService.deleteImage(id, url)
     return res
   },
+  deleteImages: async function (ctx, next) {
+    const { idList, urlList } = ctx.request.body
+    let res = await ImageService.deleteImages(idList, urlList)
+    return res
+  },
   createRandomImage: async function (ctx, next) {
     let res = await ImageService.createRandomImage()
     return res
@@ -49,6 +54,10 @@ module.exports = {
   getImagesByTime: async function (ctx, next) {
     const { endDate, startDate } = ctx.request.body
     let res = await ImageService.getImagesByTime(endDate, startDate)
+    return res
+  },
+  getHotImages: async function (ctx, next) {
+    let res = await ImageService.getHotImages()
     return res
   },
 }

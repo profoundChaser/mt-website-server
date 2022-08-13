@@ -9,6 +9,7 @@ const ImageController = require('./controller/image')
 const StoreController = require('./controller/store')
 const RoleController = require('./controller/role')
 const User = require('./db/models/User/index.js')
+const checkToken = require('./middleware/mi-token')
 
 module.exports = (app) => {
   /* 
@@ -84,9 +85,14 @@ module.exports = (app) => {
     const res = await ImageController.downloadsIncrement(ctx, next)
     ctx.body = res
   })
-  
+
   router.post('/getImageByTime', async (ctx, next) => {
     const res = await ImageController.getImagesByTime(ctx, next)
+    ctx.body = res
+  })
+
+  router.get('/hotImages', async (ctx, next) => {
+    const res = await ImageController.getHotImages(ctx, next)
     ctx.body = res
   })
   /* 
@@ -132,8 +138,12 @@ module.exports = (app) => {
     ctx.body = res
   })
 
-  router.post('/updateImage', async (ctx, next) => {
+  router.post('/deleteImage', async (ctx, next) => {
     const res = await ImageController.deleteImage(ctx, next)
+    ctx.body = res
+  })
+  router.post('/deleteImages', async (ctx, next) => {
+    const res = await ImageController.deleteImages(ctx, next)
     ctx.body = res
   })
 

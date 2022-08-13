@@ -8,10 +8,10 @@ module.exports = {
     for (let i = 0; i < stores.length; i++) {
       const item = stores[i]
       const image =await item.getImage()
-      console.log(image)
       imgArr.push({
         id: item.id,
         imgUrl: image.imgUrl,
+        storeTime:item.createAt
       })
     }
     return (res = {

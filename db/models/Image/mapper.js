@@ -3,10 +3,9 @@ const { Op } = require('sequelize')
 const UserMap = require('../User/mapper')
 const { objectISEmpty } = require('../../../utils/utils.js')
 const ImageMap = {
-  getAllImages: async (pageInfo,where) => {
-    console.log(where)
+  getAllImages: async (pageInfo, where, order) => {
     //整合
-    return  Image.findAll({
+    return Image.findAll({
       attributes: [
         'id',
         'name',
@@ -15,10 +14,11 @@ const ImageMap = {
         'categoryId',
         'downloads',
         'views',
-        'createdAt'
+        'createdAt',
       ],
       ...pageInfo,
-      where: where,
+      where:where,
+      order:order,
     })
   },
   getImageAndCountAll: async (where) => {

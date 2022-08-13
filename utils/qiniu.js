@@ -65,4 +65,31 @@ module.exports = {
       })
     })
   },
+  QINIUDeleteFiles: function (deleteOperations) {
+    const bucketManager = createBucketManager()
+    return new Promise((resolve, reject) => {
+      bucketManager.batch(deleteOperations, function (err, respBody, respInfo) {
+        if (err) {
+          console.log(err)
+          reject(err)
+          //throw err;
+        } else {
+          // 200 is success, 298 is part success
+          if (parseInt(respInfo.statusCode / 100) == 2) {
+            respBody.forEach(function (item) {
+              if (item.code == 200) {
+                console.log(item.code + '\tsuccess')
+              } else {
+                console.log(item.code + '\t' + item.data.error)
+              }
+            })
+          } else {
+            console.log(respInfo.deleteusCode)
+            console.log(respBody)
+            resolve(respBody)
+          }
+        }
+      })
+    })
+  },
 }

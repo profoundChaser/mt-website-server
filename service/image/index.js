@@ -1,8 +1,14 @@
 const ImageMap = require('../../db/models/Image/mapper')
-const { uploadToQINIU, QINIUDeleteFile } = require('../../utils/qiniu')
+const {
+  uploadToQINIU,
+  QINIUDeleteFile,
+  QINIUDeleteFiles,
+} = require('../../utils/qiniu')
 const QINIU = require('../../config/qiniuConfig')
+const qiniu = require('qiniu')
 const { Op } = require('sequelize')
 const UserMap = require('../../db/models/User/mapper')
+const sequelize=require('../../db/index.js')
 const {
   createRandomNumWidthScope,
   objectISEmpty,
@@ -48,7 +54,11 @@ module.exports = {
         count = imageObj.count
       }
     }
-    const images = await ImageMap.getAllImages(pageInfo, where)
+    const images = await ImageMap.getAllImages(
+      pageInfo,
+      where,
+      sequelize.random()
+    )
     let imgsArr = []
     //联表处理数据结果
     for (let i = 0; i < images.length; i++) {
@@ -156,7 +166,7 @@ module.exports = {
     let res
     const qiniuRes = await QINIUDeleteFile(QINIU.bucket, imgKey)
     const deleteRes = await ImageMap.deleteImage(id, ImageMap)
-    if (deleteRes) {
+    if (deleteRes && qiniuRes) {
       return (res = {
         status: 200,
         msg: '删除图片成功',
@@ -167,6 +177,27 @@ module.exports = {
         msg: '删除图片失败',
       })
     }
+  },
+  deleteImages: async function (idList, urlList) {
+    urlList = urlList.map((url) => url.split('com/')[1])
+    const deleteOperations = []
+    urlList.forEach((url) => {
+      deleteOperations.push(qiniu.rs.deleteOp(QINIU.bucket, url))
+    })
+    for (let i = 0; i < idList.length; i++) {
+      ImageMap.deleteImage(+idList[i], ImageMap)
+    }
+    QINIUDeleteFiles(deleteOperations)
+    return (res = {
+      status: 200,
+      msg: '删除图片成功',
+    })
+    //  else {
+    //   return (res = {
+    //     status: 400,
+    //     msg: '删除图片失败',
+    //   })
+    // }
   },
   createRandomImage: async function () {
     let res
@@ -294,6 +325,22 @@ module.exports = {
       return (res = {
         msg: '获取成功',
         data: imgsArr,
+        status: 200,
+      })
+    }
+  },
+  getHotImages: async function () {
+    let order = [['views', 'DESC']]
+    const images = await ImageMap.getAllImages({ limit: 20 }, {}, order)
+    if (!images.length) {
+      return (res = {
+        msg: '获取失败',
+        status: 400,
+      })
+    } else {
+      return (res = {
+        msg: '获取成功',
+        data: images,
         status: 200,
       })
     }
