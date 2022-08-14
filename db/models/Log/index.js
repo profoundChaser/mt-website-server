@@ -22,14 +22,10 @@ const Log = sequelize.define(
       type: Sequelize.STRING,
     },
   },
-  { timestamps: false }
 )
 
-Log.sync().then(() => {
-//   return Log.create({
-//     name: '美女',
-//     nameInEn: 'mv',
-//   })
-})
+// Log.sync({force:true}).then(() => {
+
+// })
 
 module.exports = Log

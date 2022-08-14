@@ -8,7 +8,7 @@ const QINIU = require('../../config/qiniuConfig')
 const qiniu = require('qiniu')
 const { Op } = require('sequelize')
 const UserMap = require('../../db/models/User/mapper')
-const sequelize=require('../../db/index.js')
+const sequelize = require('../../db/index.js')
 const {
   createRandomNumWidthScope,
   objectISEmpty,
@@ -20,6 +20,7 @@ module.exports = {
     let pageInfo = {}
     let count = 0
     let where = {}
+    let order = null
     if (params) {
       //请求是否携带分页逻辑
       if (params.pageSize) {
@@ -53,12 +54,12 @@ module.exports = {
         const imageObj = await ImageMap.getImageAndCountAll(where)
         count = imageObj.count
       }
+
+      if (params.useRandom) {
+        order = sequelize.random()
+      }
     }
-    const images = await ImageMap.getAllImages(
-      pageInfo,
-      where,
-      sequelize.random()
-    )
+    const images = await ImageMap.getAllImages(pageInfo, where, order)
     let imgsArr = []
     //联表处理数据结果
     for (let i = 0; i < images.length; i++) {

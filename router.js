@@ -9,8 +9,6 @@ const ImageController = require('./controller/image')
 const StoreController = require('./controller/store')
 const RoleController = require('./controller/role')
 const LogController = require('./controller/log')
-const User = require('./db/models/User/index.js')
-const checkToken = require('./middleware/mi-token')
 
 module.exports = (app) => {
   /* 

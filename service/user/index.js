@@ -4,10 +4,11 @@ const jwt = require('jsonwebtoken')
 const { ArrayISEmpty, objectISEmpty } = require('../../utils/utils')
 const config = require('../../config/config')
 const sendEmailToGetCode = require('../../utils/sendEmail')
-const uploadToQINIU = require('../../utils/qiniu')
 const QINIU = require('../../config/qiniuConfig')
 //引入日志模块
 const LogMap = require('../../db/models/Log/mapper')
+const { QINIUDeleteFile, uploadToQINIU } = require('../../utils/qiniu')
+
 module.exports = {
   login: async function (reqEmail, pwd, ctx) {
     let res = null
@@ -108,9 +109,28 @@ module.exports = {
   },
   updateAvatar: async function (id, file, dirName) {
     let res
-    qiniuRes = await uploadToQINIU(file.newFilename, file, dirName)
-    // UserMap.updateUser(id, { avatar })
-    return (res = {})
+    console.log(id, file, dirName)
+    const user = await UserMap.getUserById(id)
+    if (user.avatar.indexOf(QINIU.origin) >= 0) {
+      QINIUDeleteFile(QINIU.bucket, user.avatar.split('com/')[1])
+    }
+    const qiniuRes = await uploadToQINIU(file.newFilename, file, dirName)
+    const updateUser =await UserMap.updateUser(id, {
+      avatar: `http://${QINIU.origin}/${qiniuRes.key}`,
+    },UserMap)
+    if(updateUser&&qiniuRes.key){
+      return (res = {
+        status: 200,
+        msg: '上传成功',
+        data: updateUser,
+      })
+    }else{
+      return (res = {
+        status: 400,
+        msg: '上传失败'
+      })
+    }
+
   },
   updateUserInfo: async function (params) {
     let res
@@ -132,7 +152,8 @@ module.exports = {
   },
   updateUserPwd: async function (params) {
     let res
-    const { id, password } = params
+    let { id, password } = params
+    password = encrypt(key, iv, password)
     const user = UserMap.updateUser(id, { password }, UserMap)
     if (user) {
       return (res = {
@@ -150,7 +171,7 @@ module.exports = {
     let res
     const { id, old_password } = params
     const user = await UserMap.getUserById(id)
-    const password = user.password
+    const password = decrypt(key, iv, user.password)
     if (old_password === password) {
       return (res = {
         status: 200,
