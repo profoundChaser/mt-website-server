@@ -19,7 +19,9 @@ module.exports = {
   },
   updateImage: async function (ctx, next) {
     const { id } = ctx.params
+    console.log(id)
     let { image } = ctx.request.body
+    console.log(image)
     let res = await ImageService.updateImage(id, image)
     return res
   },

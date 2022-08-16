@@ -14,6 +14,7 @@ const ImageMap = {
         'categoryId',
         'downloads',
         'views',
+        'tags',
         'createdAt',
       ],
       ...pageInfo,

@@ -12,12 +12,11 @@ const checkToken = async (ctx, next) => {
     '/hotImages',
     '/randomImage',
   ]
-  if (whiteList.includes(url)) {
+  if (whiteList.includes(url.split('?')[0])) {
     await next()
   } else {
     try {
       const token = ctx.request.header['authorization']
-      console.log(token)
       const tokenInfo = jwt.verify(token, key)
       // 将token的创建的时间和过期时间结构出来
       const { iat, exp } = tokenInfo
@@ -42,11 +41,11 @@ const checkToken = async (ctx, next) => {
         }
       }
     } catch (err) {
-      ctx.status = 401
-      ctx.body = {
-        status:401,
-        message: 'token认证失败,请重新登录',
-      }
+      // ctx.status = 401
+      // ctx.body = {
+      //   status: 401,
+      //   message: 'token认证失败,请重新登录',
+      // }
     }
   }
 }

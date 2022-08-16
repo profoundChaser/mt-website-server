@@ -39,6 +39,9 @@ const Image = sequelize.define('image', {
     type: Sequelize.INTEGER,
     defaultValue: 0,
   },
+  tags:{
+    type:Sequelize.STRING,
+  }
 })
 
 //多表关联 外键都在image 此时Image原型上有getUser方法
@@ -49,15 +52,15 @@ Image.belongsTo(User, { foreignKey: 'uploaderId', targetKey: 'id' })
 ImgCategory.hasMany(Image, { foreignKey: 'categoryId', sourceKey: 'id' })
 Image.belongsTo(ImgCategory, { foreignKey: 'categoryId', targetKey: 'id' })
 
-// Image.sync({force:true}).then(() => {
-//   return Image.create({
-//     id:Date.now(),
-//     name: '王曦谣白色连衣露肤装',
-//     imgUrl:
-//       'http://rfrho6xco.hn-bkt.clouddn.com/mv/0020r4qogy1gtueecrbsoj60xc1e0tor02_edit_872666037019655.jpg',
-//     uploaderId: 1,
-//     categoryId: 1,
-//   })
+// Image.sync({alter:true}).then(() => {
+  // return Image.create({
+  //   id:Date.now(),
+  //   name: '王曦谣白色连衣露肤装',
+  //   imgUrl:
+  //     'http://rfrho6xco.hn-bkt.clouddn.com/mv/0020r4qogy1gtueecrbsoj60xc1e0tor02_edit_872666037019655.jpg',
+  //   uploaderId: 1,
+  //   categoryId: 1,
+  // })
 // })
 
 module.exports = Image

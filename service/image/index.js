@@ -75,6 +75,7 @@ module.exports = {
         downloads: item.downloads,
         views: item.views,
         avatar: user.avatar,
+        tags: item.tags !== null ? item.tags.split(' ') : null,
         category_name: category.name,
         category_nameInEn: category.nameInEn,
       })
@@ -106,6 +107,7 @@ module.exports = {
         name: imageObj.name,
         categoryId: imageObj.categoryId,
         uploaderId: imageObj.uploaderId,
+        tags: imageObj.tags.join(' '),
         imgUrl: `http://${QINIU.origin}/${qiniuRes.key}`,
       }
       const image = await ImageMap.createImage(imageOptions)
@@ -128,6 +130,7 @@ module.exports = {
           name: imageObj.name,
           categoryId: imageObj.categoryId,
           uploaderId: imageObj.uploaderId,
+          tags: imageObj.tags.join(' '),
           imgUrl: `http://${QINIU.origin}/${qiniuRes.key}`,
         }
         const image = await ImageMap.createImage(imageOptions)
