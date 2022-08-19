@@ -20,4 +20,4 @@
 ![image text](https://github.com/profoundChaser/mt-website-server/blob/master/public/project-img/project5.JPG)
 
 #项目展示
-<img src="https://github.com/profoundChaser/mt-website-server/blob/master/public/project-img/project1.JPG"/>
+<img src="https://github.com/profoundChaser/mt-website-server/blob/master/public/project-img/project1.JPG" anonymous="true"/>
